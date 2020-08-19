@@ -1,9 +1,10 @@
 import discord
 import os
 import game
-from dotenv import load_dotenv
 from discord.ext import commands
-from discord.ext.commands import has_permissions
+from discord.ext.commands import has_permissions, MissingPermissions
+from dotenv import load_dotenv
+
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
@@ -83,6 +84,8 @@ async def start(ctx):
                 if g.endgame:
                     current_player = None
                     playing = False
+                if not playing or not g.pl1.isAlive or g.pl1.isWinner:
+                    return
         elif current_player != ctx.author:
             await ctx.send('Sorry, ' + str(current_player) + ' is currently playing. Please wait for them to finish!')
         elif ctx.author == current_player:
@@ -90,11 +93,12 @@ async def start(ctx):
     del g
 
 
+g = game.Game(client)
+
 @client.command(help='End your game prematurely')
 async def end(ctx):
     global current_player
     global playing
-    g = game.Game(client)
     print('LOG: ' + str(ctx.author) + ' requested "end"')
     if current_player is None:
         await ctx.send('No one is playing!')
@@ -103,6 +107,7 @@ async def end(ctx):
     else:
         playing = False
         current_player = None
+        g.pl1.isAlive = False
         g.earlyend = True
         await g.endgamel(ctx)
 

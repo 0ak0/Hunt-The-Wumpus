@@ -175,13 +175,17 @@ class Game:
                 self.pl1.current_room = int(choice)
 
                 if choice == self.b1.current_room or choice == self.b2.current_room:
+
                     print()
+
                     # await ctx.send('A bat picked you up and moved you to a random room!')
                     self.batmove = True
                     self.pl1.current_room = random.choice(self.rooms)
 
                 elif choice == self.p1.current_room or choice == self.p2.current_room:
+
                     print()
+
                     await ctx.send('You fell down a pit...')
                     self.pl1.isAlive = False
                     self.pitdeath = True
@@ -190,7 +194,9 @@ class Game:
 
                 elif choice == self.w1.current_room:
                     await ctx.send('You stepped into the Wumpus\'s room and startled him!')
+
                     print()
+
                     self.pl1.isAlive = False
                     self.wumpusdeath = True
                     await self.endgamel(ctx)
@@ -215,7 +221,9 @@ class Game:
                         choice = int(choice)
 
                 if choice == self.w1.current_room:
+
                     print()
+
                     # await ctx.send('You shot the Wumpus')
                     self.wumpusshot = True
                     self.pl1.isWinner = True
@@ -224,7 +232,9 @@ class Game:
 
                 else:
                     self.pl1.arrows -= 1
+
                     print()
+
                     # await ctx.send('You missed...\n' + str(self.pl1.arrows) + ' arrows left...')
                     embed = discord.Embed(
                         colour=discord.Colour.dark_red()
@@ -294,10 +304,12 @@ class Game:
             await msg.add_reaction(move)
 
             def check(reaction, user):
-                return user == ctx.author and str(reaction.emoji) in ['🏹', '🧭']
+                return user == ctx.author and reaction.message.id == msg.id and str(reaction.emoji) in ['🏹', '🧭']
 
             loop = 0
             while loop == 0:
+                if not self.pl1.isAlive: 
+                    return
                 reaction, user = await self.client.wait_for('reaction_add', check=check)
                 if reaction.emoji == shoot:
                     self.choice_shoot = True
